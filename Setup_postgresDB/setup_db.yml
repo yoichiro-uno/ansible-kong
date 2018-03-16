@@ -1,0 +1,6 @@
+---
+- name: Setup PostgreSQL for kong
+  hosts: all
+  become: yes
+  roles:
+    - postgreSQL_db

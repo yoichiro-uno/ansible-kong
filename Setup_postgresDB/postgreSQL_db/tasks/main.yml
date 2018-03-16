@@ -1,0 +1,25 @@
+---
+- name: Add PostgreSQL Database
+  postgresql_db:
+    name: "{{postgres_kong_database}}"
+    login_user: postgres
+    login_password: postgres
+#    encoding: "UTF-8"
+    state: present
+#    owner: "{{postgres_kong_database_owner}}"
+#    login_host: "{{postgres_host}}"
+#    port: "{{postgres_port}}"
+
+
+- name: Add PostgreSQL User
+  postgresql_user:
+    name: "{{postgres_kong_user}}"
+    password: "{{postgres_kong_pass_hash}}"
+    encrypted: yes
+    login_user: postgres
+    login_password: postgres
+    priv: ALL
+    db: "{{postgres_kong_database}}"
+#    login_host: "{{postgres_host}}"
+#    port: "{{postgres_port}}"
+    state: present

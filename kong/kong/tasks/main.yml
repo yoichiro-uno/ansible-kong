@@ -1,0 +1,69 @@
+---
+- name: Add repository for kong
+  yum_repository:
+    name: kong
+    description: "kong"
+    baseurl: 'https://kong.bintray.com/kong-community-edition-rpm/centos/$releasever/'
+    enabled: yes
+    gpgcheck: no
+
+- name: Install kong
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - kong
+
+- name: Make config file from templates
+  copy:
+    src: /etc/kong/kong.conf.default
+    dest: /etc/kong/kong.conf
+    owner: root
+    group: root
+    mode: 0644
+    remote_src: yes
+
+- name: Configure to use kong
+  lineinfile:
+    path: "/etc/kong/kong.conf"
+    state: present
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - {regexp: '^#proxy_listen = 0.0.0.0:8000', line: 'proxy_listen = 0.0.0.0:8000'}
+    - {regexp: '^#proxy_listen_ssl = 0.0.0.0:8443', line: 'proxy_listen_ssl = 0.0.0.0:8443'}
+    - {regexp: '^#admin_listen = 0.0.0.0:8001', line: 'admin_listen = 0.0.0.0:8001'}
+    - {regexp: '^#admin_listen_ssl = 0.0.0.0:8444', line: 'admin_listen_ssl = 0.0.0.0:8444'}
+
+- name: Configure Database settings
+  lineinfile:
+    path: "/etc/kong/kong.conf"
+    state: present
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - {regexp: '^#database = postgres', line: 'database = postgres'}
+    - {regexp: '^#pg_host = 127.0.0.1', line: 'pg_host = {{ postgres_host }}'}
+    - {regexp: '^#pg_port = 5432', line: 'pg_port = {{ postgres_port}}'}
+    - {regexp: '^#pg_user = kong', line: 'pg_user = {{postgres_kong_user}}'}
+    - {regexp: '^#pg_password =', line: 'pg_password = {{ postgres_kong_pass }}'}
+    - {regexp: '^#pg_database = kong', line: 'pg_database = {{ postgres_kong_database}}'}
+    - {regexp: '^#pg_ssl = off', line: 'pg_ssl = {{postgres_ssl}}'}
+    - {regexp: '^#pg_ssl_verify = off', line: 'pg_ssl_verify = {{postgres_ssl_verify}}'}
+#  when: kong_postgres == "true"
+
+- name: Upload kong Service file
+  template:
+    src: kong.service.j2
+    dest: "/etc/systemd/system/kong.service"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+    force: yes
+    backup: yes
+
+- name: Start Kong
+  systemd:
+    name: kong
+    state: started
+    enabled: yes

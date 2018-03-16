@@ -1,0 +1,6 @@
+---
+- name: Install Kong
+  hosts: all
+  become: yes
+  roles:
+    - kong
