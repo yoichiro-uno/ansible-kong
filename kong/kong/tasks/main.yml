@@ -50,7 +50,6 @@
     - {regexp: '^#pg_database = kong', line: 'pg_database = {{ postgres_kong_database}}'}
     - {regexp: '^#pg_ssl = off', line: 'pg_ssl = {{postgres_ssl}}'}
     - {regexp: '^#pg_ssl_verify = off', line: 'pg_ssl_verify = {{postgres_ssl_verify}}'}
-#  when: kong_postgres == "true"
 
 - name: Upload kong Service file
   template:

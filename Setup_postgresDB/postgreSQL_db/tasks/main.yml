@@ -4,11 +4,7 @@
     name: "{{postgres_kong_database}}"
     login_user: postgres
     login_password: postgres
-#    encoding: "UTF-8"
     state: present
-#    owner: "{{postgres_kong_database_owner}}"
-#    login_host: "{{postgres_host}}"
-#    port: "{{postgres_port}}"
 
 
 - name: Add PostgreSQL User
@@ -20,6 +16,4 @@
     login_password: postgres
     priv: ALL
     db: "{{postgres_kong_database}}"
-#    login_host: "{{postgres_host}}"
-#    port: "{{postgres_port}}"
     state: present
